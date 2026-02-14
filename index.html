@@ -3,21 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini FPS Button Version</title>
+<title>Mini FPS</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Tombol HP / desktop -->
-<div id="controls">
-  <button id="forwardBtn">↑</button>
-  <button id="backwardBtn">↓</button>
-  <button id="leftBtn">←</button>
-  <button id="rightBtn">→</button>
-  <button id="shootBtn">Shoot</button>
+<!-- Start Screen -->
+<div id="startScreen">
+    <button id="playBtn">Play</button>
+</div>
+
+<!-- Mobile Controls -->
+<div id="mobileControls">
+    <div class="joystick">
+        <button id="upBtn">↑</button>
+        <button id="leftBtn">←</button>
+        <button id="rightBtn">→</button>
+        <button id="downBtn">↓</button>
+    </div>
+    <div class="actionBtns">
+        <button id="shootBtn">Shoot</button>
+        <button id="jumpBtn">Jump</button>
+        <button id="runBtn">Run</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
