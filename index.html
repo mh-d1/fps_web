@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini FPS AWM Fix</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Start screen untuk desktop pointer lock -->
+<div id="startScreen">Klik layar untuk mulai</div>
+
+<!-- Tombol HP (hanya tampil di mobile) -->
+<div id="mobileControls">
+  <button id="shootBtn">Shoot</button>
+  <button id="scopeBtn">Scope</button>
+  <button id="runBtn">Run</button>
+  <button id="jumpBtn">Jump</button>
+  <div id="dpad">
+    <button class="dirBtn" data-dir="forward">↑</button>
+    <button class="dirBtn" data-dir="backward">↓</button>
+    <button class="dirBtn" data-dir="left">←</button>
+    <button class="dirBtn" data-dir="right">→</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
