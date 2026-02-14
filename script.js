@@ -59,6 +59,11 @@ startScreen.addEventListener("click",()=>{
 controls.addEventListener('lock',()=>{ startScreen.style.display="none"; });
 controls.addEventListener('unlock',()=>{ startScreen.style.display="flex"; });
 
+// ===== Device Detection =====
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+if(isMobile){ document.getElementById("mobileControls").style.display="block"; setupMobileControls(); }
+else setupDesktopControls();
+
 // ===== Bullets & Weapon =====
 const bullets=[];
 const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
@@ -90,32 +95,37 @@ function checkCollision(pos){
     return false;
 }
 
-// ===== Device Detection =====
-const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-if(isMobile){ 
-    document.getElementById("mobileControls").style.display="block"; 
-    setupMobileControls(); 
-}else setupDesktopControls();
+// ===== Mobile Controls =====
+function setupMobileControls(){
+    const move={forward:false,backward:false,left:false,right:false};
+    let isZoom=false,isRunning=false,isJumping=false;
+    document.getElementById("shootBtn").addEventListener("touchstart",shoot);
+    document.getElementById("scopeBtn").addEventListener("touchstart",()=>{isZoom=true;});
+    document.getElementById("scopeBtn").addEventListener("touchend",()=>{isZoom=false;});
+    document.getElementById("runBtn").addEventListener("touchstart",()=>{isRunning=true;});
+    document.getElementById("runBtn").addEventListener("touchend",()=>{isRunning=false;});
+    document.getElementById("jumpBtn").addEventListener("touchstart",()=>{if(controls.getObject().position.y<=player.height+0.01) isJumping=true;});
+    document.querySelectorAll(".dirBtn").forEach(btn=>{
+        btn.addEventListener("touchstart",()=>{move[btn.dataset.dir]=true;});
+        btn.addEventListener("touchend",()=>{move[btn.dataset.dir]=false;});
+    });
+    animateMobile(move,isZoom,isRunning,isJumping);
+}
 
-// ===== Desktop Controls (WASD + Shift + Space) =====
+// ===== Desktop Controls =====
 function setupDesktopControls(){
     const move={forward:false,backward:false,left:false,right:false};
     let isZoom=false,isRunning=false,isJumping=false;
-
-    document.addEventListener('keydown', e=>{
+    document.addEventListener('keydown',e=>{
         switch(e.code){
             case 'KeyW': move.forward=true; break;
             case 'KeyS': move.backward=true; break;
             case 'KeyA': move.left=true; break;
             case 'KeyD': move.right=true; break;
             case 'ShiftLeft': isRunning=true; break;
-            case 'Space': 
-                if(controls.getObject().position.y <= player.height+0.01) 
-                    isJumping = true;
-                break;
         }
     });
-    document.addEventListener('keyup', e=>{
+    document.addEventListener('keyup',e=>{
         switch(e.code){
             case 'KeyW': move.forward=false; break;
             case 'KeyS': move.backward=false; break;
@@ -128,53 +138,19 @@ function setupDesktopControls(){
     animateDesktop(move,isZoom,isRunning,isJumping);
 }
 
-// ===== Mobile Controls =====
-function setupMobileControls(){
-    const move={forward:false,backward:false,left:false,right:false};
-    let isZoom=false,isRunning=false,isJumping=false;
-
-    // gerak
-    document.getElementById("forwardBtn").addEventListener("touchstart",()=>move.forward=true);
-    document.getElementById("forwardBtn").addEventListener("touchend",()=>move.forward=false);
-    document.getElementById("backwardBtn").addEventListener("touchstart",()=>move.backward=true);
-    document.getElementById("backwardBtn").addEventListener("touchend",()=>move.backward=false);
-    document.getElementById("leftBtn").addEventListener("touchstart",()=>move.left=true);
-    document.getElementById("leftBtn").addEventListener("touchend",()=>move.left=false);
-    document.getElementById("rightBtn").addEventListener("touchstart",()=>move.right=true);
-    document.getElementById("rightBtn").addEventListener("touchend",()=>move.right=false);
-
-    // run
-    document.getElementById("runBtn").addEventListener("touchstart",()=>isRunning=true);
-    document.getElementById("runBtn").addEventListener("touchend",()=>isRunning=false);
-
-    // jump
-    document.getElementById("jumpBtn").addEventListener("touchstart",()=>{
-        if(controls.getObject().position.y<=player.height+0.01) isJumping=true;
-    });
-
-    // scope / zoom
-    document.getElementById("scopeBtn").addEventListener("touchstart",()=>isZoom=true);
-    document.getElementById("scopeBtn").addEventListener("touchend",()=>isZoom=false);
-
-    // tembak
-    document.getElementById("shootBtn").addEventListener("touchstart",shoot);
-
-    animateMobile(move,isZoom,isRunning,isJumping);
-}
-
 // ===== Animate =====
-function animateDesktop(move,isZoom,isRunning,isJumping){
-    requestAnimationFrame(()=>animateDesktop(move,isZoom,isRunning,isJumping));
-    updatePlayer(move,isZoom,isRunning,isJumping);
-    renderer.render(scene,camera);
-}
 function animateMobile(move,isZoom,isRunning,isJumping){
     requestAnimationFrame(()=>animateMobile(move,isZoom,isRunning,isJumping));
     updatePlayer(move,isZoom,isRunning,isJumping);
     renderer.render(scene,camera);
 }
+function animateDesktop(move,isZoom,isRunning,isJumping){
+    requestAnimationFrame(()=>animateDesktop(move,isZoom,isRunning,isJumping));
+    updatePlayer(move,isZoom,isRunning,isJumping);
+    renderer.render(scene,camera);
+}
 
-// ===== Update Player =====
+// ===== Update player =====
 function updatePlayer(move,isZoom,isRunning,isJumping){
     const speed=isRunning?player.speed*2:player.speed;
     const direction=new THREE.Vector3();
@@ -191,21 +167,16 @@ function updatePlayer(move,isZoom,isRunning,isJumping){
         controls.getObject().position.z=newZ;
     }
 
-    // Zoom / scope
-    camera.fov=isZoom?30:75;
+    camera.fov = isZoom?30:75;
     camera.updateProjectionMatrix();
 
-    // Jump
-    if(isJumping){ controls.getObject().position.y+=0.2; isJumping=false; }
+    if(isJumping){ controls.getObject().position.y+=0.15; isJumping=false; }
     else if(controls.getObject().position.y>player.height) controls.getObject().position.y-=0.1;
     else controls.getObject().position.y=player.height;
 
-    // Bullets
     bullets.forEach((b,i)=>{
         b.position.add(b.direction.clone().multiplyScalar(2));
-        if(Math.abs(b.position.x)>50||Math.abs(b.position.z)>50){
-            scene.remove(b); bullets.splice(i,1);
-        }
+        if(Math.abs(b.position.x)>50||Math.abs(b.position.z)>50){ scene.remove(b); bullets.splice(i,1); }
     });
 }
 
